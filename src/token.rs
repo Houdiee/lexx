@@ -1,14 +1,14 @@
-use crate::{span::Spanned};
+use crate::span::Spanned;
 
 pub type Token<'src> = Spanned<TokenKind<'src>>;
 
 #[derive(Debug, Clone, Copy)]
 pub enum TokenKind<'src> {
     Literal { char: u8 },
-    Escaped { char: &'src [u8] },
     Number { val: usize },
-    Reference { name: &'src [u8] },
     Ident { name: &'src [u8], kind: IdentKind },
+    Reference { name: &'src [u8] },
+    Escaped { sequence: &'src [u8] },
     ShorthandClass { char: u8 },
     OpenParen,   // (
     ClosedParen, // )

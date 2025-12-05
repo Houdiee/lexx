@@ -1,4 +1,4 @@
-use std::ops::Range;
+use std::{fmt::Debug, ops::Range};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Spanned<T> {
