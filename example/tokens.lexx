@@ -1,0 +1,16 @@
+KW_LET    = let
+KW_VAR    = var
+KW_IF     = if
+KW_THEN   = then
+KW_ELSE   = else
+KW_RETURN = return
+EMOJI_SMILEY = 😅😅😅
+
+LIT_INT   = {digit}+
+LIT_FLOAT = {digit}+ . {digit}+
+LIT_CHAR  = '.'
+LIT_STR   = ".*"
+
+digit  = [0-9]
+letter = [a-zA-Z]
+
