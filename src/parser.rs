@@ -1,5 +1,6 @@
 #![allow(dead_code)]
 use crate::{
+    regex::parser::ASTNode as RegexAST,
     span::{Span, Spanned},
     token::{IdentKind, Token, TokenKind},
 };
@@ -14,6 +15,7 @@ pub struct Parser<'src> {
 pub struct Rule<'src> {
     pub name: Spanned<&'src [u8]>,
     pub kind: IdentKind,
+    pub pattern: RegexAST<'src>,
 }
 
 pub type ParserError<'src> = Spanned<ParserErrorKind<'src>>;
@@ -30,6 +32,7 @@ pub enum Expected {
     Equals,
     ClosedParen,
     Comma,
+    OpenBrace,
     ClosedBrace,
 }
 
@@ -41,6 +44,7 @@ impl<'src> PartialEq<Expected> for TokenKind<'src> {
             (TokenKind::ClosedParen, Expected::ClosedParen) => true,
             (TokenKind::Comma, Expected::Comma) => true,
             (TokenKind::ClosedBrace, Expected::ClosedBrace) => true,
+            (TokenKind::OpenBrace, Expected::OpenBrace) => true,
             _ => false,
         }
     }
@@ -84,14 +88,21 @@ impl<'src> Parser<'src> {
 
     fn parse_rule(&mut self) -> Result<Rule<'src>, ParserError<'src>> {
         let ident_token = self.expect(Expected::Ident)?;
-        let (ident_name, ident_kind) = match ident_token.value {
-            TokenKind::Ident { name, kind } => (name, kind),
+        let (name, kind) = match ident_token.value {
+            TokenKind::Ident { name, kind } => (
+                Spanned {
+                    value: name,
+                    span: ident_token.span,
+                },
+                kind,
+            ),
             _ => unreachable!(),
         };
 
         _ = self.expect(Expected::Equals)?;
 
-        todo!()
+        let pattern = self.parse_regex()?;
+        Ok(Rule { name, kind, pattern })
     }
 
     pub fn current_span(&self) -> Span {
