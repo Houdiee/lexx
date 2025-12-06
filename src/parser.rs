@@ -34,6 +34,7 @@ pub enum Expected {
     Comma,
     OpenBrace,
     ClosedBrace,
+    Newline,
 }
 
 impl<'src> PartialEq<Expected> for TokenKind<'src> {
@@ -67,7 +68,10 @@ impl<'src> Parser<'src> {
     }
 
     pub fn recover_from_error(&mut self) {
-        _ = self.consume(); // make this shit better
+        while self.peek().is_some_and(|t| t.value != TokenKind::Newline) {
+            _ = self.consume();
+        }
+        _ = self.consume();
     }
 
     pub fn parse(&mut self) -> (Vec<Rule<'src>>, Vec<ParserError<'src>>) {
@@ -100,8 +104,9 @@ impl<'src> Parser<'src> {
         };
 
         _ = self.expect(Expected::Equals)?;
-
         let pattern = self.parse_regex()?;
+        _ = self.expect(Expected::Newline)?;
+
         Ok(Rule { name, kind, pattern })
     }
 

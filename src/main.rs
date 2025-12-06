@@ -14,14 +14,14 @@ fn main() {
 
     let (tokens, lexer_errors) = Lexer::new(&source).lex();
     if !tokens.is_empty() {
-        for token in &tokens {
-            println!("{token:?}");
-        }
+        // for token in &tokens {
+        //     println!("{token:?}");
+        // }
     }
     if !lexer_errors.is_empty() {
-        for error in &lexer_errors {
-            println!("{error:?}");
-        }
+        // for error in &lexer_errors {
+        //     println!("{error:?}");
+        // }
     }
 
     let (rules, parser_errors) = Parser::new(&tokens).parse();

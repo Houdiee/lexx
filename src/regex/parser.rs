@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use crate::{
-    parser::{Expected, Parser, ParserError, ParserErrorKind},
+    parser::{Expected, Parser, ParserError},
     span::{Span, Spanned},
     token::{IdentKind, TokenKind},
 };
@@ -141,6 +141,7 @@ impl<'src> Parser<'src> {
                 _ => unreachable!(),
             };
         }
+
         _ = self.expect(Expected::Comma)?;
 
         let mut range_end = None;
