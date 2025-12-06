@@ -80,7 +80,10 @@ impl<'src> Parser<'src> {
 
         while let Some(rule_result) = self.next() {
             match rule_result {
-                Ok(rule) => rules.push(rule),
+                Ok(rule) => {
+                    println!("{rule:?}");
+                    rules.push(rule);
+                },
                 Err(err) => {
                     errors.push(err);
                     self.recover_from_error();
@@ -150,6 +153,14 @@ impl<'src> Parser<'src> {
             value: ParserErrorKind::UnexpectedEOF,
             span: self.current_span(),
         })
+    }
+
+    pub fn peek_nth(&self, n: usize) -> Option<Token<'src>> {
+        if self.pos + n < self.tokens.len() {
+            Some(self.tokens[self.pos + n])
+        } else {
+            None
+        }
     }
 
     pub fn peek(&self) -> Option<Token<'src>> {

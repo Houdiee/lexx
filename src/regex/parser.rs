@@ -73,7 +73,10 @@ impl<'src> Parser<'src> {
     fn parse_concat(&mut self) -> Result<ASTNode<'src>, ParserError<'src>> {
         let mut left = self.parse_quantifier()?;
         let span_start = left.span.start;
-        while self.peek().is_some() {
+        while self
+            .peek()
+            .is_some_and(|t| !matches!(t.value, TokenKind::Pipe | TokenKind::ClosedParen | TokenKind::Newline))
+        {
             let right = self.parse_quantifier()?;
             let span_end = right.span.end;
             left = ASTNode {
@@ -122,7 +125,13 @@ impl<'src> Parser<'src> {
                 })
             }
 
-            TokenKind::OpenBrace => self.parse_range_repetition(atom),
+            TokenKind::OpenBrace => match self.peek_nth(1) {
+                Some(next) => match next.value {
+                    TokenKind::Number { .. } | TokenKind::Comma => self.parse_range_repetition(atom),
+                    _ => Ok(atom),
+                },
+                None => Ok(atom),
+            },
 
             _ => Ok(atom),
         }
