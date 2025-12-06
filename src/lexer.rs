@@ -236,7 +236,7 @@ impl<'src> Lexer<'src> {
             return;
         }
 
-        while self.peek().is_some_and(|c| c.is_ascii_whitespace()) {
+        while self.peek().is_some_and(|c| c == b' ' || c == b'\t' || c == b'\r') {
             _ = self.consume();
         }
     }
