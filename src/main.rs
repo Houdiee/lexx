@@ -15,13 +15,13 @@ fn main() {
     let (tokens, lexer_errors) = Lexer::new(&source).lex();
     if !tokens.is_empty() {
         // for token in &tokens {
-        //     println!("{token:?}");
+        //     println!("{token:#?}");
         // }
     }
     if !lexer_errors.is_empty() {
-        // for error in &lexer_errors {
-        //     println!("{error:?}");
-        // }
+        for error in &lexer_errors {
+            println!("{error:#?}");
+        }
     }
 
     let (rules, parser_errors) = Parser::new(&tokens).parse();
@@ -32,7 +32,7 @@ fn main() {
     // }
     if !parser_errors.is_empty() {
         for error in &parser_errors {
-            println!("{error:?}");
+            println!("{error:#?}");
         }
     }
 }

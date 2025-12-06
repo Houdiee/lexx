@@ -22,6 +22,10 @@ pub type ParserError<'src> = Spanned<ParserErrorKind<'src>>;
 
 #[derive(Debug)]
 pub enum ParserErrorKind<'src> {
+    EmptyGroup,
+    EmptyCharacterClass,
+    EmptyBraces,
+    InvalidRange,
     UnexpectedToken { expected: Expected, got: TokenKind<'src> },
     UnexpectedEOF,
 }
@@ -84,7 +88,7 @@ impl<'src> Parser<'src> {
             match rule_result {
                 Ok(rule) => {
                     rules.push(rule);
-                },
+                }
                 Err(err) => {
                     errors.push(err);
                     self.recover_from_error();

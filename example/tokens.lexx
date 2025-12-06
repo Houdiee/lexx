@@ -1,6 +1,6 @@
-INVALID_ALTER = abc |
-OVERFLOW  = hello{1, 4}
-KW_LET    = let
+KW_LET    = let!#!@()(#)
+OVERFLOW  = hello{1, 0}
+INVALID_ALTER = abc | def
 KW_VAR    = var
 KW_IF     = if
 KW_THEN   = then

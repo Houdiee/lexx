@@ -141,7 +141,7 @@ impl<'src> Parser<'src> {
     // RangeRepetition ::= Atom '{' [ <int> ] ',' [ <int> ] '}'
     fn parse_range_repetition(&mut self, atom: ASTNode<'src>) -> Result<ASTNode<'src>, ParserError<'src>> {
         let span_start = atom.span.start;
-        _ = self.expect(Expected::OpenBrace)?;
+        let range_span_start = self.expect(Expected::OpenBrace)?.span.start;
 
         let mut range_start = 0;
         if self.peek().is_some_and(|t| matches!(t.value, TokenKind::Number { .. })) {
@@ -164,6 +164,14 @@ impl<'src> Parser<'src> {
         }
 
         let span_end = self.expect(Expected::ClosedBrace)?.span.end;
+
+        if range_end.is_some_and(|end| end < range_start) {
+            return Err(ParserError {
+                value: ParserErrorKind::InvalidRange,
+                span: Span::from(range_span_start..span_end),
+            });
+        }
+
         Ok(ASTNode {
             value: AST::Range {
                 inner: Box::new(atom),
@@ -204,6 +212,13 @@ impl<'src> Parser<'src> {
 
             TokenKind::OpenParen => {
                 _ = self.consume();
+                if self.peek().is_some_and(|t| t.value == TokenKind::ClosedParen) {
+                    return Err(ParserError {
+                        value: ParserErrorKind::EmptyGroup,
+                        span: Span::from(span_start..self.current_span().end),
+                    });
+                }
+
                 let inner = self.parse_regex()?;
                 let span_end = self.expect(Expected::ClosedParen)?.span.end;
 
@@ -213,8 +228,26 @@ impl<'src> Parser<'src> {
                 })
             }
 
+            TokenKind::OpenBrack => {
+                _ = self.consume();
+                if self.peek().is_some_and(|t| t.value == TokenKind::ClosedBrack) {
+                    return Err(ParserError {
+                        value: ParserErrorKind::EmptyCharacterClass,
+                        span: Span::from(span_start..self.current_span().end),
+                    });
+                }
+                todo!()
+            }
+
             TokenKind::OpenBrace => {
                 _ = self.consume();
+                if self.peek().is_some_and(|t| t.value == TokenKind::ClosedBrace) {
+                    return Err(ParserError {
+                        value: ParserErrorKind::EmptyBraces,
+                        span: Span::from(span_start..self.current_span().end),
+                    });
+                }
+
                 let reference_token = self.expect(Expected::Ident)?;
                 let (name, kind) = match reference_token.value {
                     TokenKind::Ident { name, kind } => (name, kind),
@@ -227,6 +260,16 @@ impl<'src> Parser<'src> {
                     span: Span::from(span_start..span_end),
                 })
             }
+
+            TokenKind::ClosedBrack => Err(ParserError {
+                value: ParserErrorKind::EmptyCharacterClass,
+                span: peeked.span,
+            }),
+
+            TokenKind::ClosedBrace => Err(ParserError {
+                value: ParserErrorKind::EmptyBraces,
+                span: peeked.span,
+            }),
 
             _ => Err(ParserError {
                 value: ParserErrorKind::UnexpectedToken {
