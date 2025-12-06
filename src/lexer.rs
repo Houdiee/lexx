@@ -1,9 +1,10 @@
+#![allow(dead_code)]
 use crate::{
     span::{Span, Spanned},
     token::{IdentKind, Token, TokenKind},
 };
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub struct Lexer<'src> {
     source: &'src [u8],
     pos: usize,
@@ -12,15 +13,14 @@ pub struct Lexer<'src> {
     is_expecting_expr: bool,
 }
 
-#[derive(Debug, Clone)]
+pub type LexerError<'src> = Spanned<LexerErrorKind<'src>>;
+
+#[derive(Debug)]
 pub enum LexerErrorKind<'src> {
     NumberOverflow,
     InvalidEscape { escaped: &'src [u8] },
-    UnexpectedEOF,
     InvalidCharacter { char: u8 },
 }
-
-pub type LexerError<'src> = Spanned<LexerErrorKind<'src>>;
 
 impl<'src> Iterator for Lexer<'src> {
     type Item = Result<Token<'src>, LexerError<'src>>;
@@ -116,8 +116,12 @@ impl<'src> Iterator for Lexer<'src> {
                 TokenKind::Number { val: number }
             }
             byte if self.is_in_braces && byte.is_ascii_alphabetic() => {
-                let reference_name = self.consume_ident();
-                TokenKind::Reference { name: reference_name }
+                let ident_name = self.consume_ident();
+                let ident_kind = Self::get_ident_kind(ident_name);
+                TokenKind::Ident {
+                    name: ident_name,
+                    kind: ident_kind,
+                }
             }
             byte if !self.is_expecting_expr && (byte.is_ascii_alphabetic() || byte == b'_') => {
                 let ident_name = self.consume_ident();
@@ -147,8 +151,8 @@ impl<'src> Iterator for Lexer<'src> {
                 TokenKind::Literal { char: peeked }
             }
         };
-
         let span_end = self.pos;
+
         Some(Ok(Token {
             value: token_kind,
             span: Span::from(span_start..span_end),
@@ -229,7 +233,6 @@ impl<'src> Lexer<'src> {
 
     fn skip_whitespace(&mut self) {
         if self.is_in_brackets {
-            // TOOD: make sure it only returns for spaces
             return;
         }
 

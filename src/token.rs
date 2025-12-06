@@ -2,12 +2,11 @@ use crate::span::Spanned;
 
 pub type Token<'src> = Spanned<TokenKind<'src>>;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum TokenKind<'src> {
     Literal { char: u8 },
     Number { val: usize },
     Ident { name: &'src [u8], kind: IdentKind },
-    Reference { name: &'src [u8] },
     Escaped { sequence: &'src [u8] },
     ShorthandClass { char: u8 },
     OpenParen,   // (
@@ -29,7 +28,7 @@ pub enum TokenKind<'src> {
     Newline,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum IdentKind {
     Token,
     Helper,

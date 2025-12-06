@@ -20,3 +20,9 @@ impl From<Range<usize>> for Span {
         }
     }
 }
+
+impl Default for Span {
+    fn default() -> Self {
+        Self { start: 0, end: 0 }
+    }
+}
