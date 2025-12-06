@@ -64,6 +64,31 @@ impl<'src> Parser<'src> {
     // Quantifier ::= Atom { '*' | '+' | '?' | RangeRepetition }
     // RangeRepetition ::= '{' [ <int> ] ',' [ <int> ] '}'
     fn parse_quantifier(&mut self) -> Result<ASTNode<'src>, ParserError<'src>> {
+        // TokenKind::Number { .. } | TokenKind::Comma => {
+        //     let mut range_start = 0;
+        //     if self.peek().is_some_and(|t| matches!(t.value, TokenKind::Number { .. })) {
+        //         let range_start_token = self.consume_or_err()?;
+        //         range_start = match range_start_token.value {
+        //             TokenKind::Number { val } => val,
+        //             _ => unreachable!(),
+        //         };
+        //     }
+        //     _ = self.expect(Expected::Comma)?;
+        //
+        //     let mut range_end = None;
+        //     if self.peek().is_some_and(|t| matches!(t.value, TokenKind::Number { .. })) {
+        //         let range_end_token = self.consume_or_err()?;
+        //         range_end = match range_end_token.value {
+        //             TokenKind::Number { val } => Some(val),
+        //             _ => unreachable!(),
+        //         };
+        //     }
+        //
+        //     let span_end = self.expect(Expected::ClosedBrace)?.span.end;
+        //     Ok(ASTNode {
+        //         value: AST::Range { inner: (), start: (), end: () }
+        //     })
+        // }
         todo!()
     }
 
@@ -108,23 +133,17 @@ impl<'src> Parser<'src> {
 
             TokenKind::OpenBrace => {
                 _ = self.consume();
-                let next_token = self.peek_or_err()?;
-                match next_token.value {
-                    TokenKind::Ident { name, kind } => {
-                        todo!()
-                    }
+                let reference_token = self.expect(Expected::Ident)?;
+                let (name, kind) = match reference_token.value {
+                    TokenKind::Ident { name, kind } => (name, kind),
+                    _ => unreachable!(),
+                };
+                let span_end = self.expect(Expected::ClosedBrace)?.span.end;
 
-                    TokenKind::Number { .. } | TokenKind::Comma => {
-                        todo!()
-                    }
-
-                    _ => {
-                        Err(ParserError {
-                            value: ParserErrorKind::UnexpectedEOF,
-                            span: self.current_span(),
-                        })
-                    }
-                }
+                Ok(ASTNode {
+                    value: AST::Reference { name, kind },
+                    span: Span::from(span_start..span_end),
+                })
             }
 
             _ => unreachable!("Invalid TokenKind was passed into parse_atom"),

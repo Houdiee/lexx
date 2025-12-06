@@ -29,6 +29,8 @@ pub enum Expected {
     Ident,
     Equals,
     ClosedParen,
+    Comma,
+    ClosedBrace,
 }
 
 impl<'src> PartialEq<Expected> for TokenKind<'src> {
@@ -37,6 +39,8 @@ impl<'src> PartialEq<Expected> for TokenKind<'src> {
             (TokenKind::Ident { .. }, Expected::Ident) => true,
             (TokenKind::Equals, Expected::Equals) => true,
             (TokenKind::ClosedParen, Expected::ClosedParen) => true,
+            (TokenKind::Comma, Expected::Comma) => true,
+            (TokenKind::ClosedBrace, Expected::ClosedBrace) => true,
             _ => false,
         }
     }
