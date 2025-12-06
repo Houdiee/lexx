@@ -25,11 +25,11 @@ fn main() {
     }
 
     let (rules, parser_errors) = Parser::new(&tokens).parse();
-    if !rules.is_empty() {
-        for rule in &rules {
-            println!("{rule:?}");
-        }
-    }
+    // if !rules.is_empty() {
+    //     for rule in &rules {
+    //         println!("{rule:#?}");
+    //     }
+    // }
     if !parser_errors.is_empty() {
         for error in &parser_errors {
             println!("{error:?}");

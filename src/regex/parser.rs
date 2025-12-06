@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 
 use crate::{
-    parser::{Expected, Parser, ParserError},
+    parser::{Expected, Parser, ParserError, ParserErrorKind},
     span::{Span, Spanned},
     token::{IdentKind, TokenKind},
 };
@@ -56,6 +56,7 @@ impl<'src> Parser<'src> {
         let mut left = self.parse_concat()?;
         let span_start = left.span.start;
         while self.peek().is_some_and(|t| t.value == TokenKind::Pipe) {
+            _ = self.consume();
             let right = self.parse_concat()?;
             let span_end = right.span.end;
             left = ASTNode {
@@ -227,7 +228,13 @@ impl<'src> Parser<'src> {
                 })
             }
 
-            _ => unreachable!("Invalid TokenKind was passed into parse_atom"),
+            _ => Err(ParserError {
+                value: ParserErrorKind::UnexpectedToken {
+                    expected: Expected::Atom,
+                    got: peeked.value,
+                },
+                span: peeked.span,
+            }),
         }
     }
 }

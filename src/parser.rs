@@ -35,6 +35,7 @@ pub enum Expected {
     OpenBrace,
     ClosedBrace,
     Newline,
+    Atom,
 }
 
 impl<'src> PartialEq<Expected> for TokenKind<'src> {
@@ -46,6 +47,7 @@ impl<'src> PartialEq<Expected> for TokenKind<'src> {
             (TokenKind::Comma, Expected::Comma) => true,
             (TokenKind::ClosedBrace, Expected::ClosedBrace) => true,
             (TokenKind::OpenBrace, Expected::OpenBrace) => true,
+            (TokenKind::Newline, Expected::Newline) => true,
             _ => false,
         }
     }
@@ -81,7 +83,6 @@ impl<'src> Parser<'src> {
         while let Some(rule_result) = self.next() {
             match rule_result {
                 Ok(rule) => {
-                    println!("{rule:?}");
                     rules.push(rule);
                 },
                 Err(err) => {

@@ -1,3 +1,4 @@
+INVALID_ALTER = abc |
 OVERFLOW  = hello{1, 4}
 KW_LET    = let
 KW_VAR    = var
