@@ -182,11 +182,9 @@ impl<'src> Lexer<'src> {
         for token in self.by_ref() {
             tokens.push(token);
         }
-        (tokens, self.errors())
-    }
 
-    pub fn errors(&mut self) -> Vec<Error> {
-        mem::take(&mut self.errors)
+        let errors = mem::take(&mut self.errors);
+        (tokens, errors)
     }
 
     unsafe fn tokenize_escape(&mut self) -> Token<'src> {
