@@ -1,5 +1,6 @@
 use std::{
     iter::Peekable,
+    mem,
     ops::{Add, Mul},
     str::Chars,
 };
@@ -174,6 +175,18 @@ impl<'src> Lexer<'src> {
             is_expecting_expr: false,
             errors: Vec::new(),
         }
+    }
+
+    pub fn lex(&mut self) -> (Vec<Token<'src>>, Vec<Error>) {
+        let mut tokens: Vec<Token> = Vec::new();
+        for token in self.by_ref() {
+            tokens.push(token);
+        }
+        (tokens, self.errors())
+    }
+
+    pub fn errors(&mut self) -> Vec<Error> {
+        mem::take(&mut self.errors)
     }
 
     unsafe fn tokenize_escape(&mut self) -> Token<'src> {
