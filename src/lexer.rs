@@ -132,7 +132,11 @@ impl<'src> Iterator for Lexer<'src> {
                 }
 
                 '\n' => {
-                    self.consume();
+                    while self.peek().is_some_and(|&c| c.is_whitespace()) {
+                        self.consume();
+                    }
+                    self.is_in_braces = false;
+                    self.is_in_brackets = false;
                     self.is_expecting_expr = false;
                     TokenKind::Newline
                 }
@@ -191,10 +195,7 @@ impl<'src> Lexer<'src> {
 
             let token_kind = match escaped {
                 'x' => return self.tokenize_unicode_escape('x', 2),
-
                 'u' => return self.tokenize_unicode_escape('u', 4),
-
-
                 'U' => return self.tokenize_unicode_escape('U', 8),
 
                 char if is_escaped_literal(char) => {
@@ -346,7 +347,7 @@ impl<'src> Lexer<'src> {
         if self.is_in_brackets {
             return;
         }
-        while self.peek().is_some_and(|c| c.is_whitespace()) {
+        while self.peek().is_some_and(|&c| c.is_whitespace() && c != '\n') {
             self.consume();
         }
     }
